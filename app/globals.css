@@ -1,26 +1,139 @@
 @import "tailwindcss";
 
 :root {
+  /* Twitch Brand Colors */
+  --twitch-purple: #9146ff;
+  --twitch-purple-dark: #772ce8;
+  --twitch-purple-light: #bf94ff;
+
+  /* Light Theme */
   --background: #ffffff;
-  --foreground: #171717;
+  --background-secondary: #f7f7f8;
+  --foreground: #18181b;
+  --foreground-secondary: #53535f;
+  --border: #e5e5e5;
+
+  /* Accent */
+  --accent: var(--twitch-purple);
+  --accent-hover: var(--twitch-purple-dark);
+  --accent-light: var(--twitch-purple-light);
+}
+
+.dark {
+  /* Dark Theme */
+  --background: #0e0e10;
+  --background-secondary: #18181b;
+  --foreground: #efeff1;
+  --foreground-secondary: #adadb8;
+  --border: #2f2f35;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
   --color-foreground: var(--foreground);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-light: var(--accent-light);
+  --color-twitch-purple: var(--twitch-purple);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--twitch-purple);
+  outline-offset: 2px;
+}
+
+/* Button base styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--twitch-purple);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--twitch-purple-dark);
+}
+
+.btn-secondary {
+  background: var(--background-secondary);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--border);
+}
+
+/* Input base styles */
+.input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: var(--background-secondary);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  color: var(--foreground);
+  font-size: 1rem;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.input:focus {
+  border-color: var(--twitch-purple);
+  box-shadow: 0 0 0 3px rgba(145, 70, 255, 0.15);
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--foreground-secondary);
+}
+
+/* Card styles */
+.card {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Gradient background */
+.gradient-bg {
+  background: linear-gradient(
+    135deg,
+    var(--twitch-purple) 0%,
+    var(--twitch-purple-dark) 100%
+  );
 }

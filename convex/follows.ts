@@ -19,13 +19,25 @@ export const getMyFollowing = query({
             .order("desc")
             .take(limit);
 
-        // Get user details for each followed user
+        // Get user details and active stream for each followed user
         const following = await Promise.all(
             follows.map(async (follow) => {
                 const user = await ctx.db.get(follow.followingId);
+
+                // Find active stream if user is live
+                let activeStream = null;
+                if (user?.isLive) {
+                    activeStream = await ctx.db
+                        .query("streams")
+                        .withIndex("by_userId", (q) => q.eq("userId", follow.followingId))
+                        .filter((q) => q.eq(q.field("status"), "live"))
+                        .first();
+                }
+
                 return {
                     ...follow,
                     user,
+                    activeStream,
                 };
             }),
         );

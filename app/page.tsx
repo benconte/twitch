@@ -85,7 +85,7 @@ export default function HomePage() {
                   Start streaming
                 </Link>
                 <Link
-                  href="/browse"
+                  href="/discover"
                   className="btn btn-secondary px-8 py-3 text-lg"
                 >
                   Browse streams

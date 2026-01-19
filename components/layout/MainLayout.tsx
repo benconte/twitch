@@ -13,13 +13,15 @@ interface MainLayoutProps {
 export function MainLayout({ children }: MainLayoutProps) {
     return (
         <ToastProvider>
-            <div className="min-h-screen bg-background" suppressHydrationWarning>
+            <div
+                className="h-screen overflow-hidden bg-background flex flex-col"
+                suppressHydrationWarning
+            >
                 <Header />
-                <div className="flex">
+                <div className="flex flex-1 overflow-hidden">
                     <Sidebar />
-                    <main className="flex-1 min-w-0">{children}</main>
+                    <main className="flex-1 min-w-0 overflow-y-auto">{children}</main>
                 </div>
-                {/* Mobile navigation is rendered at the header level */}
             </div>
         </ToastProvider>
     );

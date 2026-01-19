@@ -20,11 +20,14 @@ export function Header() {
     const { isAuthenticated, isLoading } = useConvexAuth();
 
     return (
-        <header className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 border-b border-border">
+        <header className="sticky top-0 z-40 bg-background/65 backdrop-blur supports-backdrop-filter:bg-background/60 border-b border-border">
             <div className="flex items-center justify-between h-14 px-4">
                 {/* Left Section - Logo and Nav */}
                 <div className="flex items-center gap-6">
-                    <Link href="/" className="flex items-center gap-2">
+                    <Link
+                        href={isAuthenticated ? `/dashboard` : "/"}
+                        className="flex items-center gap-2"
+                    >
                         <TwitchIcon className="w-8 h-8 text-twitch-purple" />
                         <span className="text-xl font-bold text-foreground hidden sm:block">
                             Twitch
@@ -33,10 +36,10 @@ export function Header() {
 
                     <nav className="hidden md:flex items-center gap-1">
                         <Link
-                            href="/browse"
+                            href="/discover"
                             className="px-3 py-2 text-sm font-medium text-foreground-secondary hover:text-foreground hover:bg-background-secondary rounded-md transition-colors"
                         >
-                            Browse
+                            Discover
                         </Link>
                         {isAuthenticated && (
                             <Link

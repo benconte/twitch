@@ -17,6 +17,7 @@ interface SidebarChannelProps {
     viewerCount?: number;
     category?: string;
     collapsed: boolean;
+    streamId?: string;
 }
 
 function SidebarChannel({
@@ -27,10 +28,13 @@ function SidebarChannel({
     viewerCount,
     category,
     collapsed,
+    streamId,
 }: SidebarChannelProps) {
+    // Navigate to stream page if live, otherwise to profile
+    const href = isLive && streamId ? `/stream/${streamId}` : `/${username}`;
     return (
         <Link
-            href={`/${username}`}
+            href={href}
             className={`
         flex items-center gap-3 px-3 py-2 rounded-lg
         hover:bg-background-secondary transition-colors
@@ -111,29 +115,10 @@ export function Sidebar() {
         isAuthenticated ? { limit: 10 } : "skip",
     );
 
-    // For now, we'll show recommended channels as a static list
-    // In a real app, this would come from an API
-    const recommendedChannels = [
-        {
-            username: "shroud",
-            displayName: "shroud",
-            isLive: true,
-            viewerCount: 42000,
-            category: "VALORANT",
-        },
-        {
-            username: "pokimane",
-            displayName: "pokimane",
-            isLive: true,
-            viewerCount: 28000,
-            category: "Just Chatting",
-        },
-        {
-            username: "xqc",
-            displayName: "xQc",
-            isLive: false,
-        },
-    ];
+    // Get recommended live streams from API
+    const recommendedStreams = useQuery(api.streams.getRecommended, {
+        limit: 5,
+    });
 
     // Hide sidebar on certain pages
     const hiddenPaths = ["/login", "/register", "/verify"];
@@ -198,15 +183,29 @@ export function Sidebar() {
                                 </p>
                             )
                         ) : (
-                            following.map((follow) => (
-                                <SidebarChannel
-                                    key={follow._id}
-                                    username={follow.user?.username || "unknown"}
-                                    displayName={follow.user?.displayName}
-                                    avatarUrl={follow.user?.avatarUrl}
-                                    collapsed={collapsed}
-                                />
-                            ))
+                            following
+                                .filter(
+                                    (follow) =>
+                                        follow.user &&
+                                        (follow.user.username || follow.user.displayName),
+                                )
+                                .map((follow) => (
+                                    <SidebarChannel
+                                        key={follow._id}
+                                        username={
+                                            follow.user!.username ||
+                                            follow.user!.displayName ||
+                                            follow.user!._id
+                                        }
+                                        displayName={follow.user?.displayName}
+                                        avatarUrl={follow.user?.avatarUrl}
+                                        isLive={follow.user?.isLive}
+                                        streamId={follow.activeStream?._id}
+                                        viewerCount={follow.activeStream?.viewerCount}
+                                        category={follow.activeStream?.category}
+                                        collapsed={collapsed}
+                                    />
+                                ))
                         )}
                     </div>
                 </div>
@@ -223,13 +222,33 @@ export function Sidebar() {
                 )}
 
                 <div className="space-y-0.5">
-                    {recommendedChannels.map((channel) => (
-                        <SidebarChannel
-                            key={channel.username}
-                            {...channel}
-                            collapsed={collapsed}
-                        />
-                    ))}
+                    {recommendedStreams === undefined ? (
+                        <>
+                            <SidebarSkeleton collapsed={collapsed} />
+                            <SidebarSkeleton collapsed={collapsed} />
+                            <SidebarSkeleton collapsed={collapsed} />
+                        </>
+                    ) : recommendedStreams.length === 0 ? (
+                        !collapsed && (
+                            <p className="px-3 py-2 text-sm text-foreground-secondary">
+                                No live streams
+                            </p>
+                        )
+                    ) : (
+                        recommendedStreams.map((stream) => (
+                            <SidebarChannel
+                                key={stream._id}
+                                username={stream.streamer!.username!}
+                                displayName={stream.streamer?.displayName}
+                                avatarUrl={stream.streamer?.avatarUrl}
+                                isLive={true}
+                                viewerCount={stream.viewerCount}
+                                category={stream.category}
+                                collapsed={collapsed}
+                                streamId={stream._id}
+                            />
+                        ))
+                    )}
                 </div>
             </div>
 

@@ -11,6 +11,7 @@ const schema = defineSchema({
     // users with minimal data initially (just email). These are populated during profile setup.
     users: defineTable({
         // Authentication
+        name: v.optional(v.string()),
         email: v.optional(v.string()),
         emailVerified: v.optional(v.boolean()),
 

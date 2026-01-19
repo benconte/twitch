@@ -47,8 +47,11 @@ export const searchStreams = query({
         const limit = args.limit || 10;
         const searchQuery = args.query.toLowerCase();
 
-        // Get all streams and filter by title
-        const streams = await ctx.db.query("streams").collect();
+        // Get only live streams and filter by title
+        const streams = await ctx.db
+            .query("streams")
+            .withIndex("by_status", (q) => q.eq("status", "live"))
+            .collect();
 
         const matchedStreams = await Promise.all(
             streams

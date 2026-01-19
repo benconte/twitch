@@ -22,6 +22,7 @@ import {
     StopCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
 
 interface StreamPublisherProps {
     streamId: Id<"streams">;
@@ -33,6 +34,7 @@ function PublisherControls({ streamId }: { streamId: Id<"streams"> }) {
     const [isCameraOn, setIsCameraOn] = useState(true);
     const [isMicOn, setIsMicOn] = useState(true);
     const [isScreenSharing, setIsScreenSharing] = useState(false);
+    const [showEndModal, setShowEndModal] = useState(false);
 
     const endStream = useMutation(api.streams.endStream);
 
@@ -58,45 +60,81 @@ function PublisherControls({ streamId }: { streamId: Id<"streams"> }) {
     };
 
     const handleEndStream = async () => {
-        if (confirm("Are you sure you want to end the stream?")) {
-            await endStream({ streamId });
-            window.location.href = "/dashboard/stream";
-        }
+        await endStream({ streamId });
+        window.location.href = "/dashboard/stream";
     };
 
     return (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/90 backdrop-blur-sm rounded-lg p-3 flex items-center gap-2 shadow-lg border">
-            <Button
-                variant={isCameraOn ? "secondary" : "danger"}
+        <>
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/90 backdrop-blur-sm rounded-lg p-3 flex items-center gap-2 shadow-lg border">
+                <Button
+                    variant={isCameraOn ? "secondary" : "danger"}
+                    size="sm"
+                    onClick={toggleCamera}
+                >
+                    {isCameraOn ? (
+                        <Video className="h-4 w-4" />
+                    ) : (
+                        <VideoOff className="h-4 w-4" />
+                    )}
+                </Button>
+                <Button
+                    variant={isMicOn ? "secondary" : "danger"}
+                    size="sm"
+                    onClick={toggleMic}
+                >
+                    {isMicOn ? (
+                        <Mic className="h-4 w-4" />
+                    ) : (
+                        <MicOff className="h-4 w-4" />
+                    )}
+                </Button>
+                <Button
+                    variant={isScreenSharing ? "primary" : "secondary"}
+                    size="sm"
+                    onClick={toggleScreenShare}
+                >
+                    <Monitor className="h-4 w-4" />
+                </Button>
+                <div className="w-px h-6 bg-border mx-1" />
+                <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => setShowEndModal(true)}
+                >
+                    <StopCircle className="h-4 w-4 mr-1" />
+                    End Stream
+                </Button>
+            </div>
+
+            <Modal
+                isOpen={showEndModal}
+                onClose={() => setShowEndModal(false)}
+                title="End Stream"
                 size="sm"
-                onClick={toggleCamera}
             >
-                {isCameraOn ? (
-                    <Video className="h-4 w-4" />
-                ) : (
-                    <VideoOff className="h-4 w-4" />
-                )}
-            </Button>
-            <Button
-                variant={isMicOn ? "secondary" : "danger"}
-                size="sm"
-                onClick={toggleMic}
-            >
-                {isMicOn ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
-            </Button>
-            <Button
-                variant={isScreenSharing ? "primary" : "secondary"}
-                size="sm"
-                onClick={toggleScreenShare}
-            >
-                <Monitor className="h-4 w-4" />
-            </Button>
-            <div className="w-px h-6 bg-border mx-1" />
-            <Button variant="danger" size="sm" onClick={handleEndStream}>
-                <StopCircle className="h-4 w-4 mr-1" />
-                End Stream
-            </Button>
-        </div>
+                <div className="space-y-4">
+                    <p className="text-foreground-secondary">
+                        Are you sure you want to end your stream? This action cannot be
+                        undone.
+                    </p>
+                    <div className="flex gap-3 justify-end">
+                        <Button variant="ghost" onClick={() => setShowEndModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="danger"
+                            onClick={() => {
+                                setShowEndModal(false);
+                                handleEndStream();
+                            }}
+                        >
+                            End Stream
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+        </>
     );
 }
 

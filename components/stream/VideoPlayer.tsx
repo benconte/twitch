@@ -88,7 +88,7 @@ function ViewerControls({
             <div
                 className={`
                 flex items-center justify-between gap-2 p-4
-                bg-gradient-to-t from-black/80 to-transparent
+                bg-linear-to-t from-black/80 to-transparent
                 transition-opacity duration-300
                 ${showControls ? "opacity-100" : "opacity-0"}
             `}

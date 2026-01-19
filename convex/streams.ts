@@ -124,6 +124,39 @@ export const getLive = query({
     },
 });
 
+// Get recommended live streams (sorted by viewer count)
+export const getRecommended = query({
+    args: {
+        limit: v.optional(v.number()),
+    },
+    handler: async (ctx, args) => {
+        const limit = args.limit || 10;
+
+        // Get more streams than needed to allow for filtering and sorting
+        const streams = await ctx.db
+            .query("streams")
+            .withIndex("by_status", (q) => q.eq("status", "live"))
+            .take(limit * 3);
+
+        // Get streamer info for each stream
+        const streamsWithStreamers = await Promise.all(
+            streams.map(async (stream) => {
+                const streamer = await ctx.db.get(stream.userId);
+                return {
+                    ...stream,
+                    streamer,
+                };
+            }),
+        );
+
+        // Filter out streams without proper streamer data and sort by viewer count
+        return streamsWithStreamers
+            .filter((s) => s.streamer && s.streamer.username)
+            .sort((a, b) => (b.viewerCount || 0) - (a.viewerCount || 0))
+            .slice(0, limit);
+    },
+});
+
 // Start a stream (set to live)
 export const startStream = mutation({
     args: {

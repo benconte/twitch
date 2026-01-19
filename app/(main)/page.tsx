@@ -7,50 +7,6 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { StreamCardSkeleton } from "@/components/ui/Skeleton";
 
-// Placeholder featured streams - in production these would come from an API
-const featuredStreams = [
-    {
-        id: "1",
-        title: "Late Night Gaming Session!",
-        thumbnailUrl: null,
-        username: "shroud",
-        displayName: "shroud",
-        isLive: true,
-        viewerCount: 42000,
-        category: "VALORANT",
-    },
-    {
-        id: "2",
-        title: "Just Chatting with Chat 💜",
-        thumbnailUrl: null,
-        username: "pokimane",
-        displayName: "pokimane",
-        isLive: true,
-        viewerCount: 28000,
-        category: "Just Chatting",
-    },
-    {
-        id: "3",
-        title: "Ranked Grind to Radiant",
-        thumbnailUrl: null,
-        username: "tarik",
-        displayName: "tarik",
-        isLive: true,
-        viewerCount: 15000,
-        category: "VALORANT",
-    },
-    {
-        id: "4",
-        title: "Minecraft Hardcore Day 100!",
-        thumbnailUrl: null,
-        username: "tubbo",
-        displayName: "Tubbo",
-        isLive: true,
-        viewerCount: 12000,
-        category: "Minecraft",
-    },
-];
-
 const categories = [
     { name: "Just Chatting", viewers: 450000, image: null },
     { name: "VALORANT", viewers: 180000, image: null },
@@ -66,15 +22,17 @@ function StreamCard({
     displayName,
     viewerCount,
     category,
+    streamId,
 }: {
     title: string;
     username: string;
     displayName: string;
     viewerCount: number;
     category: string;
+    streamId: string;
 }) {
     return (
-        <Link href={`/${username}`} className="group block">
+        <Link href={`/stream/${streamId}`} className="group block">
             {/* Thumbnail */}
             <div className="relative aspect-video rounded-lg overflow-hidden bg-background-secondary mb-3">
                 <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-accent/20 to-accent/5">
@@ -151,6 +109,9 @@ function CategoryCard({ name, viewers }: { name: string; viewers: number }) {
 }
 
 export default function BrowsePage() {
+    // Fetch live streams from API
+    const liveStreams = useQuery(api.streams.getLive, { limit: 8 });
+
     return (
         <div className="p-6 max-w-7xl mx-auto">
             {/* Hero Section */}
@@ -164,7 +125,7 @@ export default function BrowsePage() {
                             Watch your favorite streamers, join the conversation, and be part
                             of the community.
                         </p>
-                        <Link href="/browse">
+                        <Link href="/discover">
                             <Button
                                 variant="secondary"
                                 size="lg"
@@ -186,21 +147,46 @@ export default function BrowsePage() {
                     <h2 className="text-xl font-bold text-foreground">
                         Live channels we think you&apos;ll like
                     </h2>
-                    <Link href="/browse" className="text-sm text-accent hover:underline">
+                    <Link
+                        href="/discover"
+                        className="text-sm text-accent hover:underline"
+                    >
                         Show more
                     </Link>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {featuredStreams.map((stream) => (
-                        <StreamCard
-                            key={stream.id}
-                            title={stream.title}
-                            username={stream.username}
-                            displayName={stream.displayName}
-                            viewerCount={stream.viewerCount}
-                            category={stream.category}
-                        />
-                    ))}
+                    {liveStreams === undefined ? (
+                        <>
+                            <StreamCardSkeleton />
+                            <StreamCardSkeleton />
+                            <StreamCardSkeleton />
+                            <StreamCardSkeleton />
+                        </>
+                    ) : liveStreams.length === 0 ? (
+                        <div className="col-span-full text-center py-12">
+                            <p className="text-foreground-secondary">
+                                No live streams at the moment. Check back soon!
+                            </p>
+                        </div>
+                    ) : (
+                        liveStreams
+                            .slice(0, 4)
+                            .map((stream) => (
+                                <StreamCard
+                                    key={stream._id}
+                                    streamId={stream._id}
+                                    title={stream.title}
+                                    username={stream.streamer?.username || "unknown"}
+                                    displayName={
+                                        stream.streamer?.displayName ||
+                                        stream.streamer?.username ||
+                                        "Unknown"
+                                    }
+                                    viewerCount={stream.viewerCount || 0}
+                                    category={stream.category || "No category"}
+                                />
+                            ))
+                    )}
                 </div>
             </section>
 

@@ -62,7 +62,7 @@ export default function RegisterPage() {
             await signIn("password", data);
 
             // Redirect to verification page
-            router.push(`/verify?email=${encodeURIComponent(formData.email)}`);
+            // router.push(`/login`);
         } catch (err) {
             setError("Failed to create account. Email may already be in use.");
             console.error(err);
